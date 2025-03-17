@@ -557,7 +557,12 @@ const RegisterButtonContainer = (restaurantList) => {
   const addButton = Button({
     text: BUTTON_TEXT.ADD,
     style: "button--primary",
-    onClick: (e) => registerRestaurant(e, restaurantList),
+    onClick: (e) => {
+      registerRestaurant(e, restaurantList);
+      if (storage.loadTabInfo() === "all") {
+        renderFilteredRestaurants(restaurantList);
+      }
+    },
     id: "register-button"
   });
   const buttonContainer = createElement({
@@ -584,7 +589,6 @@ const registerRestaurant = (e, restaurantList) => {
     restaurantList.add(restaurant);
     storage.saveRestaurantList(restaurantList.value);
     $("#register-modal-backdrop").classList.remove("open");
-    renderFilteredRestaurants(restaurantList);
     clearInput("#register-form");
   } catch (e2) {
     console.log(e2.message);
