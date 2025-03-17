@@ -513,12 +513,7 @@ const renderFavoritePage = (restaurantList) => {
   $(".restaurant-list").innerHTML = "";
   const favoriteCardList = createRestaurantCards(
     restaurantList.getFavoriteList(),
-    {
-      clickFavorite: () => {
-        storage.saveRestaurantList(restaurantList.value);
-        renderFavoritePage(restaurantList);
-      }
-    }
+    eventHandlers.favorite(restaurantList)
   );
   return renderRestaurants(favoriteCardList);
 };
