@@ -57,15 +57,29 @@ body {
   font-weight: 400;
 }
 
+html {
+  height: 100%;
+}
+
+body {
+  min-height: 100vh;
+  height: 100%;
+}
+
 #app {
+  display: flex;
+  flex-direction: column;
   width: var(--app-width);
-  height: var(--app-height);
+  height: 100%;
   margin: auto;
   position: relative;
 }
 
 main {
-  height: calc(100% - var(--header-height));
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  overflow: hidden;
 }
 
 /* GNB ********************************************/
@@ -74,6 +88,7 @@ main {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-shrink: 0;
   height: 64px;
 
   padding: 0 16px;
@@ -103,6 +118,31 @@ main {
   object-fit: contain;
 }
 
+/* TAB ********************************************/
+
+.tab {
+  display: flex;
+  justify-content: center;
+  align-items: end;
+  height: 64px;
+  padding: 0 16px;
+  cursor: pointer;
+}
+
+.tab div {
+  width: 180px;
+  text-align: center;
+  height: 30px;
+  border-bottom: 2px solid var(--grey-200);
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.tab div.tab--selected {
+  color: var(--primary-color);
+  border-bottom: 2px solid var(--primary-color);
+}
+
 /* 음식점 추가 모달 *****************************************/
 
 .modal-backdrop {
@@ -130,6 +170,30 @@ main {
 
 .modal-title {
   margin-bottom: 36px;
+}
+
+.restaurant-detail-modal .restaurant {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.restaurant-detail-modal .restaurant__description {
+  display: block;
+}
+
+.restaurant-detail-modal .restaurant__info {
+  gap: 12px;
+}
+
+.restaurant-detail-modal .restaurant__link {
+  display: block;
+}
+
+.restaurant-detail-modal .restaurant__favorite {
+  position: absolute;
+  right: 0px;
 }
 
 .form-item {
@@ -246,6 +310,8 @@ input[name="link"] {
   background: transparent;
 
   font-size: 16px;
+
+  padding-left: 8px;
 }
 
 .restaurant-filter {
@@ -300,6 +366,11 @@ input[name="link"] {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
+  flex-grow: 1;
+}
+
+.restaurant__link {
+  display: none;
 }
 
 .restaurant__name {
@@ -312,6 +383,13 @@ input[name="link"] {
 
 .restaurant__description {
   padding-top: 8px;
+
+  display: -webkit-box;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
 
 .text-ellipsis {
@@ -321,4 +399,10 @@ input[name="link"] {
   text-overflow: ellipsis;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
+}
+
+.favorite-icon {
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
 }
