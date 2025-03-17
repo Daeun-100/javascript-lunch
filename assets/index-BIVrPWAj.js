@@ -6,7 +6,7 @@ var __privateGet = (obj, member, getter) => (__accessCheck(obj, member, "read fr
 var __privateAdd = (obj, member, value) => member.has(obj) ? __typeError("Cannot add the same private member more than once") : member instanceof WeakSet ? member.add(obj) : member.set(obj, value);
 var __privateSet = (obj, member, value, setter) => (__accessCheck(obj, member, "write to private field"), setter ? setter.call(obj, value) : member.set(obj, value), value);
 var __privateMethod = (obj, member, method) => (__accessCheck(obj, member, "access private method"), method);
-var _restaurantList, _currentCategory, _nameOrDistance, _value, _Restaurant_instances, validate_fn;
+var _value, _Restaurant_instances, validate_fn, _restaurantList, _currentCategory, _nameOrDistance;
 (function polyfill() {
   const relList = document.createElement("link").relList;
   if (relList && relList.supports && relList.supports("modulepreload")) {
@@ -152,63 +152,6 @@ const WALK_TIME_MINUTES = {
   TWENTY: 20,
   THIRTY: 30
 };
-class RestaurantList {
-  constructor(restaurantList = []) {
-    __privateAdd(this, _restaurantList, []);
-    __privateAdd(this, _currentCategory, "");
-    __privateAdd(this, _nameOrDistance, "");
-    __privateSet(this, _restaurantList, restaurantList);
-  }
-  add(restaurant) {
-    __privateGet(this, _restaurantList).push(restaurant);
-  }
-  delete(restaurant) {
-    __privateSet(this, _restaurantList, __privateGet(this, _restaurantList).filter(
-      (item) => item !== restaurant
-    ));
-  }
-  filter() {
-    let filteredList = __privateGet(this, _restaurantList);
-    filteredList = this.filterByCategory(__privateGet(this, _currentCategory), filteredList);
-    if (__privateGet(this, _nameOrDistance) === "name") {
-      return this.filterByName(filteredList);
-    }
-    if (__privateGet(this, _nameOrDistance) === "distance") {
-      return this.filterByDistance(filteredList);
-    }
-    return filteredList;
-  }
-  getFavoriteList() {
-    const favoriteList = __privateGet(this, _restaurantList).filter(
-      (restaurant) => restaurant.value.isFavorite
-    );
-    return favoriteList;
-  }
-  filterByCategory(category, list) {
-    if (category === "") {
-      return list;
-    }
-    return list.filter((restaurant) => restaurant.value.category === category);
-  }
-  filterByName(list) {
-    return [...list].sort((a, b) => a.value.name.localeCompare(b.value.name));
-  }
-  filterByDistance(list) {
-    return [...list].sort((a, b) => a.value.distance - b.value.distance);
-  }
-  setCategory(category) {
-    __privateSet(this, _currentCategory, category);
-  }
-  setNameOrDistance(sortBy) {
-    __privateSet(this, _nameOrDistance, sortBy);
-  }
-  get value() {
-    return [...__privateGet(this, _restaurantList)];
-  }
-}
-_restaurantList = new WeakMap();
-_currentCategory = new WeakMap();
-_nameOrDistance = new WeakMap();
 const createKeyValuePair = (keys, values) => {
   if (keys.length !== values.length) return;
   return keys.reduce((obj, key, index) => {
@@ -507,6 +450,17 @@ const RestaurantCard = (restaurant, events = {}) => {
   });
   return restaurantCard;
 };
+const createRestaurantCards = (restaurantList, events = {}) => {
+  return restaurantList.map((restaurant) => RestaurantCard(restaurant, events));
+};
+const renderRestaurants = (restaurantCardList) => {
+  const ulTag = $(".restaurant-list");
+  ulTag.innerHTML = "";
+  restaurantCardList.forEach((restaurantCard) => {
+    ulTag.appendChild(restaurantCard);
+  });
+  return ulTag;
+};
 const BUTTON_TEXT$1 = {
   DELETE: "삭제하기",
   CLOSE: "닫기"
@@ -541,16 +495,18 @@ const clickDelete = (restaurant, restaurantList) => {
   storage.saveRestaurantList(restaurantList.value);
   renderFilteredRestaurants(restaurantList);
 };
-const createRestaurantCards = (restaurantList, events = {}) => {
-  return restaurantList.map((restaurant) => RestaurantCard(restaurant, events));
-};
-const renderRestaurants = (restaurantCardList) => {
-  const ulTag = $(".restaurant-list");
-  ulTag.innerHTML = "";
-  restaurantCardList.forEach((restaurantCard) => {
-    ulTag.appendChild(restaurantCard);
-  });
-  return ulTag;
+const changeModalContents = (restaurant, restaurantList) => {
+  const restaurantDetailModal = $(".restaurant-detail-modal");
+  restaurantDetailModal.innerHTML = "";
+  restaurantDetailModal.appendChild(
+    RestaurantCard(restaurant, eventHandlers.favorite(restaurantList))
+  );
+  restaurantDetailModal.appendChild(
+    RestaurantDetailButtonContainer(restaurant, () => {
+      clickDelete(restaurant, restaurantList);
+    })
+  );
+  return restaurantDetailModal;
 };
 const renderFavoritePage = (restaurantList) => {
   $(".restaurant-filter-container").innerHTML = "";
@@ -587,19 +543,6 @@ const eventHandlers = {
       }
     };
   }
-};
-const changeModalContents = (restaurant, restaurantList) => {
-  const restaurantDetailModal = $(".restaurant-detail-modal");
-  restaurantDetailModal.innerHTML = "";
-  restaurantDetailModal.appendChild(
-    RestaurantCard(restaurant, eventHandlers.favorite(restaurantList))
-  );
-  restaurantDetailModal.appendChild(
-    RestaurantDetailButtonContainer(restaurant, () => {
-      clickDelete(restaurant, restaurantList);
-    })
-  );
-  return restaurantDetailModal;
 };
 const renderFilteredRestaurants = (restaurantList) => {
   const filteredCardList = createRestaurantCards(
@@ -696,6 +639,63 @@ const RegisterForm = (restaurantList) => {
 const modalClose = (selector) => {
   $(selector).classList.remove("open");
 };
+class RestaurantList {
+  constructor(restaurantList = []) {
+    __privateAdd(this, _restaurantList, []);
+    __privateAdd(this, _currentCategory, "");
+    __privateAdd(this, _nameOrDistance, "");
+    __privateSet(this, _restaurantList, restaurantList);
+  }
+  add(restaurant) {
+    __privateGet(this, _restaurantList).push(restaurant);
+  }
+  delete(restaurant) {
+    __privateSet(this, _restaurantList, __privateGet(this, _restaurantList).filter(
+      (item) => item !== restaurant
+    ));
+  }
+  filter() {
+    let filteredList = __privateGet(this, _restaurantList);
+    filteredList = this.filterByCategory(__privateGet(this, _currentCategory), filteredList);
+    if (__privateGet(this, _nameOrDistance) === "name") {
+      return this.filterByName(filteredList);
+    }
+    if (__privateGet(this, _nameOrDistance) === "distance") {
+      return this.filterByDistance(filteredList);
+    }
+    return filteredList;
+  }
+  getFavoriteList() {
+    const favoriteList = __privateGet(this, _restaurantList).filter(
+      (restaurant) => restaurant.value.isFavorite
+    );
+    return favoriteList;
+  }
+  filterByCategory(category, list) {
+    if (category === "") {
+      return list;
+    }
+    return list.filter((restaurant) => restaurant.value.category === category);
+  }
+  filterByName(list) {
+    return [...list].sort((a, b) => a.value.name.localeCompare(b.value.name));
+  }
+  filterByDistance(list) {
+    return [...list].sort((a, b) => a.value.distance - b.value.distance);
+  }
+  setCategory(category) {
+    __privateSet(this, _currentCategory, category);
+  }
+  setNameOrDistance(sortBy) {
+    __privateSet(this, _nameOrDistance, sortBy);
+  }
+  get value() {
+    return [...__privateGet(this, _restaurantList)];
+  }
+}
+_restaurantList = new WeakMap();
+_currentCategory = new WeakMap();
+_nameOrDistance = new WeakMap();
 const CategorySelector = (restaurantList) => {
   const events = {
     change: (e) => {
